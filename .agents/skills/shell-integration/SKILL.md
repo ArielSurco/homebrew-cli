@@ -118,3 +118,20 @@ if selectionResult.Cancelled {
     return nil  // ✅ silent — not fmt.Errorf("cancelled")
 }
 ```
+
+### Pattern 6: User-facing messages MUST go to stderr in CdOutput commands
+
+Commands with `CdOutput: true` capture stdout inside `$()` and pass it to `cd`.
+Any `fmt.Printf` or `fmt.Println` to stdout contaminates the captured path.
+
+```go
+// ❌ WRONG — "Project removed." ends up inside cd "$targetDir"
+fmt.Printf("Project %q removed.\n", name)
+
+// ✅ CORRECT — stderr is never captured by the shell wrapper
+fmt.Fprintf(os.Stderr, "Project %q removed.\n", name)
+```
+
+**Rule**: In any function that can be called from a `CdOutput` command (directly or transitively), ALL user-facing messages MUST use `fmt.Fprintf(os.Stderr, ...)`. This includes confirmation prompts, success messages, and info messages.
+
+Affected commands today: `gp` (`project go`). Any future `CdOutput` command inherits this rule.

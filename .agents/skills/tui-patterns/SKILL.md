@@ -123,3 +123,52 @@ fang.Execute(context.Background(), rootCmd,
 ```
 
 Do not remove Fang — it provides command/flag coloring throughout help output.
+
+### Pattern 7: Guard custom key handlers against bubbles/list filter mode
+
+`bubbles/list` intercepts keypresses when the user is actively typing a filter (`/` then text).
+Custom key handlers (`d`, `e`, etc.) MUST check filter state before acting — otherwise the key
+is treated as an action instead of filter input.
+
+```go
+func (model Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    if keyMsg, ok := msg.(tea.KeyMsg); ok {
+        // ✅ ALWAYS check this first
+        if model.list.FilterState() == list.Filtering {
+            updatedList, listCmd := model.list.Update(msg)
+            model.list = updatedList
+            return model, listCmd
+        }
+
+        switch string(keyMsg.Runes) {
+        case "d":
+            // safe to handle — not in filter mode
+        }
+    }
+    ...
+}
+```
+
+Also: in confirm modes (e.g. `modeConfirmDelete`), do NOT forward key messages to
+`model.list.Update()` — the list should be frozen while waiting for confirmation.
+
+### Pattern 8: Separate constructor for destructive TUI contexts
+
+When a TUI is opened from a destructive command (e.g. `gpr`), use a dedicated constructor
+that sets the initial state to communicate intent clearly — different title, warning-colored
+footer, and Enter triggers confirmation instead of navigation.
+
+```go
+// ✅ For gpr — user sees "Remove a project" + red footer from the start
+tuiModel := projectlist.NewForDelete(cfg.Projects, preFilter)
+
+// ✅ For gp — default navigate context
+tuiModel := projectlist.New(cfg.Projects, preFilter)
+```
+
+The `NewForDelete` constructor sets `deleteMode: true` on the model, which changes:
+- `listModel.Title` → `"Remove a project"`
+- Footer in `modeNavigate` → coral-colored `"select project to remove — [enter] confirm  [esc] cancel"`
+- Enter → transitions to `modeConfirmDelete` instead of returning `ActionNavigate`
+
+Apply this pattern whenever the same TUI component is reused across commands with different intents.

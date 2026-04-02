@@ -128,3 +128,40 @@ go test ./internal/shell/... -update
 - ✅ `foundProject`, `existingProject`, `index`, `shellCommand`, `expectedCommand`
 - Test variables: `loadedProject`, `selectionResult`, `testModel`, `finalModel`
 - Receivers: `svc` not `s`
+
+### Pattern 6: io.Reader injection for TTY confirmation tests
+
+Functions that read from `/dev/tty` (e.g. `y/N` prompts) are not directly testable.
+Split into an inner function accepting `io.Reader` and a production wrapper that opens `/dev/tty`.
+
+```go
+// ✅ Inner function — accepts any io.Reader, fully testable
+func confirmRemoveFromReader(name string, reader io.Reader) (bool, error) {
+    fmt.Fprintf(os.Stderr, "Remove project %q? [y/N]: ", name)
+    scanner := bufio.NewScanner(reader)
+    if !scanner.Scan() {
+        return false, nil
+    }
+    return strings.ToLower(strings.TrimSpace(scanner.Text())) == "y", nil
+}
+
+// ✅ Production wrapper — opens /dev/tty, calls inner function
+func confirmRemove(name string) (bool, error) {
+    tty, err := shell.OpenTTY()
+    if err != nil {
+        return false, err
+    }
+    defer tty.Close() //nolint:errcheck
+    return confirmRemoveFromReader(name, tty)
+}
+```
+
+Export the inner function (e.g. `ConfirmRemoveFromReader`) for use in tests:
+
+```go
+// In test
+reader := strings.NewReader("y\n")
+confirmed, err := cmdproject.ConfirmRemoveFromReader("myapp", reader)
+```
+
+Apply this pattern to any function that reads interactive input from the terminal.
