@@ -25,7 +25,8 @@ var Registry = []Module{
 			{Alias: "gp", CobraCmd: "project go", NeedsEval: false, CdOutput: true, HasCompletions: true, Description: "Navigate to a project directory"},
 			{Alias: "gpd", CobraCmd: "project dev", NeedsEval: true, HasCompletions: true, Description: "Run the dev script for a project"},
 			{Alias: "gpa", CobraCmd: "project add", NeedsEval: false, HasCompletions: false, Description: "Register a new project"},
-			{Alias: "gpr", CobraCmd: "project remove", NeedsEval: false, HasCompletions: false, Description: "Unregister a project"},
+			{Alias: "gpr", CobraCmd: "project remove", NeedsEval: false, HasCompletions: true, Description: "Unregister a project"},
+			{Alias: "gpw", CobraCmd: "project watch", NeedsEval: false, CdOutput: false, HasCompletions: false, Description: "Scan and register project subdirectories"},
 		},
 	},
 }

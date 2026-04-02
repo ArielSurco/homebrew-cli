@@ -13,4 +13,5 @@ func init() {
 	Cmd.AddCommand(removeCmd)
 	Cmd.AddCommand(goCmd)
 	Cmd.AddCommand(devCmd)
+	Cmd.AddCommand(watchCmd)
 }

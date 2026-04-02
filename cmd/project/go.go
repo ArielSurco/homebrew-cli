@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
+	"strings"
 
 	"github.com/ArielSurco/cli/internal/config"
 	"github.com/ArielSurco/cli/internal/project"
@@ -117,13 +119,88 @@ func runGoWithOutput(projectName string, isTerminal bool, cfg *config.Config, ou
 	}
 
 	selectionResult := finalProgram.(projectlist.Model).Result()
-	if selectionResult.Cancelled {
+	return HandleGoResult(selectionResult, cfg, output)
+}
+
+// HandleGoResult processes the TUI result for the go command.
+// Exported so tests can inject a pre-built result without launching the TUI.
+func HandleGoResult(selectionResult projectlist.Result, cfg *config.Config, output io.Writer) error {
+	switch selectionResult.Action {
+	case projectlist.ActionNone:
+		return nil
+	case projectlist.ActionNavigate:
+		if _, err := fmt.Fprintln(output, selectionResult.Project.Path); err != nil {
+			return fmt.Errorf("writing output: %w", err)
+		}
+		return nil
+	case projectlist.ActionDelete:
+		return removeByName(selectionResult.Project.Name, cfg)
+	case projectlist.ActionEditDev:
+		return runEditDevScript(selectionResult.Project, cfg, nil)
+	default:
 		return nil
 	}
+}
 
-	if _, err := fmt.Fprintln(output, selectionResult.Project.Path); err != nil {
-		return fmt.Errorf("writing output: %w", err)
+// runEditDevScript opens the project's dev script in $EDITOR for inline editing.
+// tty is the terminal file used for editor I/O; if nil, os.Stdin/Stdout/Stderr are used.
+func runEditDevScript(proj config.Project, cfg *config.Config, tty *os.File) error {
+	editorEnv := os.Getenv("EDITOR")
+	if editorEnv == "" {
+		return fmt.Errorf("$EDITOR is not set; set it to your preferred editor (e.g. export EDITOR=vim)")
 	}
+
+	tempFile, err := os.CreateTemp("", "dev-script-*.sh")
+	if err != nil {
+		return fmt.Errorf("creating temp file: %w", err)
+	}
+	defer os.Remove(tempFile.Name()) //nolint:errcheck
+
+	if _, err := tempFile.WriteString(proj.DevScript); err != nil {
+		tempFile.Close() //nolint:errcheck
+		return fmt.Errorf("writing dev script to temp file: %w", err)
+	}
+	if err := tempFile.Close(); err != nil {
+		return fmt.Errorf("closing temp file: %w", err)
+	}
+
+	editorFields := strings.Fields(editorEnv)
+	editorArgs := make([]string, 0, len(editorFields)-1+1)
+	editorArgs = append(editorArgs, editorFields[1:]...)
+	editorArgs = append(editorArgs, tempFile.Name())
+	editorCmd := exec.Command(editorFields[0], editorArgs...) //nolint:gosec
+
+	if tty != nil {
+		editorCmd.Stdin = tty
+		editorCmd.Stdout = tty
+		editorCmd.Stderr = tty
+	} else {
+		editorCmd.Stdin = os.Stdin
+		editorCmd.Stdout = os.Stdout
+		editorCmd.Stderr = os.Stderr
+	}
+
+	if err := editorCmd.Run(); err != nil {
+		return fmt.Errorf("running editor: %w", err)
+	}
+
+	contents, err := os.ReadFile(tempFile.Name())
+	if err != nil {
+		return fmt.Errorf("reading edited dev script: %w", err)
+	}
+
+	trimmedScript := strings.TrimSpace(string(contents))
+
+	svc := project.NewService(cfg)
+	if err := svc.UpdateDevScript(proj.Name, trimmedScript); err != nil {
+		return fmt.Errorf("updating dev script: %w", err)
+	}
+
+	if err := config.Save(cfg); err != nil {
+		return fmt.Errorf("saving config: %w", err)
+	}
+
+	fmt.Fprintf(os.Stderr, "Dev script for %q updated.\n", proj.Name)
 	return nil
 }
 

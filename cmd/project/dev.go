@@ -95,21 +95,33 @@ func runDevWithOutput(projectName string, isTerminal bool, cfg *config.Config, o
 	}
 
 	selectionResult := finalProgram.(projectlist.Model).Result()
-	if selectionResult.Cancelled {
+	return HandleDevResult(selectionResult, cfg, output)
+}
+
+// HandleDevResult processes the TUI result for the dev command.
+// Exported so tests can inject a pre-built result without launching the TUI.
+func HandleDevResult(selectionResult projectlist.Result, cfg *config.Config, output io.Writer) error {
+	switch selectionResult.Action {
+	case projectlist.ActionNone:
+		return nil
+	case projectlist.ActionNavigate:
+		svc := project.NewService(cfg)
+		shellCommand, err := svc.DevCommand(selectionResult.Project.Name)
+		if err != nil {
+			if errors.Is(err, project.ErrNoDevScript) {
+				return fmt.Errorf("%w: add a dev_script to your config or .arielsurco-cli.toml", project.ErrNoDevScript)
+			}
+			return err
+		}
+		if _, err := fmt.Fprintln(output, shellCommand); err != nil {
+			return fmt.Errorf("writing output: %w", err)
+		}
+		return nil
+	case projectlist.ActionDelete:
+		return removeByName(selectionResult.Project.Name, cfg)
+	case projectlist.ActionEditDev:
+		return runEditDevScript(selectionResult.Project, cfg, nil)
+	default:
 		return nil
 	}
-
-	svc := project.NewService(cfg)
-	shellCommand, err := svc.DevCommand(selectionResult.Project.Name)
-	if err != nil {
-		if errors.Is(err, project.ErrNoDevScript) {
-			return fmt.Errorf("%w: add a dev_script to your config or .arielsurco-cli.toml", project.ErrNoDevScript)
-		}
-		return err
-	}
-
-	if _, err := fmt.Fprintln(output, shellCommand); err != nil {
-		return fmt.Errorf("writing output: %w", err)
-	}
-	return nil
 }

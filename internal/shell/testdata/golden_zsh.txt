@@ -29,3 +29,13 @@ gpa() {
 gpr() {
   arielsurco-cli project remove "$@"
 }
+_gpr() {
+  local -a completionItems
+  completionItems=($(arielsurco-cli __complete project remove "${words[2]}" 2>/dev/null | grep -v '^:'))
+  _describe 'project' completionItems
+}
+compdef _gpr gpr
+
+gpw() {
+  arielsurco-cli project watch "$@"
+}

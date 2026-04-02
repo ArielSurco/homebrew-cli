@@ -168,3 +168,101 @@ func TestDevCommand_NoDevScript(t *testing.T) {
 		t.Errorf("expected ErrNoDevScript, got %v", err)
 	}
 }
+
+// --- UpdateDevScript ---
+
+func TestUpdateDevScript(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+
+	tests := []struct {
+		name            string
+		initialProjects []config.Project
+		projectName     string
+		newDevScript    string
+		wantErr         error
+		wantDevScript   string
+	}{
+		{
+			name: "update existing dev script to new value",
+			initialProjects: []config.Project{
+				{Name: "api", Path: "/projects/api", DevScript: "npm start"},
+			},
+			projectName:   "api",
+			newDevScript:  "yarn dev",
+			wantErr:       nil,
+			wantDevScript: "yarn dev",
+		},
+		{
+			name: "clear dev script by setting empty string",
+			initialProjects: []config.Project{
+				{Name: "api", Path: "/projects/api", DevScript: "npm start"},
+			},
+			projectName:   "api",
+			newDevScript:  "",
+			wantErr:       nil,
+			wantDevScript: "",
+		},
+		{
+			name:            "unknown project returns ErrNotFound",
+			initialProjects: []config.Project{},
+			projectName:     "ghost",
+			newDevScript:    "yarn dev",
+			wantErr:         project.ErrNotFound,
+			wantDevScript:   "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc := newService(tt.initialProjects...)
+
+			err := svc.UpdateDevScript(tt.projectName, tt.newDevScript)
+
+			if !errors.Is(err, tt.wantErr) {
+				t.Fatalf("UpdateDevScript(%q, %q) error = %v, want %v", tt.projectName, tt.newDevScript, err, tt.wantErr)
+			}
+
+			if tt.wantErr != nil {
+				return
+			}
+
+			foundProject, findErr := svc.FindByName(tt.projectName)
+			if findErr != nil {
+				t.Fatalf("FindByName after UpdateDevScript: %v", findErr)
+			}
+
+			if foundProject.DevScript != tt.wantDevScript {
+				t.Errorf("DevScript = %q, want %q", foundProject.DevScript, tt.wantDevScript)
+			}
+		})
+	}
+}
+
+func TestUpdateDevScript_NeverCallsConfigSave(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+
+	// Service only mutates in-memory; config.Save() is the cmd layer's responsibility.
+	// This test verifies the in-memory mutation is visible via List/FindByName,
+	// confirming UpdateDevScript works correctly without relying on persistence.
+	svc := newService(config.Project{Name: "api", Path: "/projects/api", DevScript: "npm start"})
+
+	if err := svc.UpdateDevScript("api", "yarn dev"); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// The mutation must be visible in-memory.
+	foundProject, err := svc.FindByName("api")
+	if err != nil {
+		t.Fatalf("FindByName: %v", err)
+	}
+
+	if foundProject.DevScript != "yarn dev" {
+		t.Errorf("in-memory DevScript = %q, want %q", foundProject.DevScript, "yarn dev")
+	}
+
+	// List also reflects the change (same backing slice).
+	list := svc.List()
+	if len(list) != 1 || list[0].DevScript != "yarn dev" {
+		t.Errorf("List()[0].DevScript = %q, want %q", list[0].DevScript, "yarn dev")
+	}
+}

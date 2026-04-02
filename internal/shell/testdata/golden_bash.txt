@@ -27,3 +27,12 @@ gpa() {
 gpr() {
   arielsurco-cli project remove "$@"
 }
+_gpr_completions() {
+  local currentWord="${COMP_WORDS[COMP_CWORD]}"
+  COMPREPLY=($(arielsurco-cli __complete project remove "$currentWord" 2>/dev/null | grep -v '^:'))
+}
+complete -F _gpr_completions gpr
+
+gpw() {
+  arielsurco-cli project watch "$@"
+}

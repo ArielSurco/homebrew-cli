@@ -65,6 +65,20 @@ func (svc *Service) List() []config.Project {
 	return svc.cfg.Projects
 }
 
+// UpdateDevScript sets the dev script for the project with the given name.
+// Accepts any string value including empty (clearing the script).
+// Returns ErrNotFound if the project does not exist.
+// NEVER calls config.Save() — that is the responsibility of the cmd layer.
+func (svc *Service) UpdateDevScript(name string, devScript string) error {
+	for index := range svc.cfg.Projects {
+		if svc.cfg.Projects[index].Name == name {
+			svc.cfg.Projects[index].DevScript = devScript
+			return nil
+		}
+	}
+	return ErrNotFound
+}
+
 // DevCommand returns the shell command to cd into the project and run its dev script.
 // Single-quote escapes the path for POSIX shell safety.
 // Returns ErrNotFound if the project does not exist, ErrNoDevScript if no script is set.

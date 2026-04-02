@@ -9,6 +9,7 @@ import (
 	cmdproject "github.com/ArielSurco/cli/cmd/project"
 	"github.com/ArielSurco/cli/internal/config"
 	"github.com/ArielSurco/cli/internal/project"
+	"github.com/ArielSurco/cli/internal/tui/projectlist"
 )
 
 // TestDevCommand_NonTTY_WithArg_Found verifies that in non-TTY mode with a known
@@ -136,5 +137,87 @@ func TestDevCommand_TTY_EmptyConfig(t *testing.T) {
 	err := cmdproject.RunDevWithOutput("", true, cfg, &bytes.Buffer{})
 	if err == nil {
 		t.Fatal("expected error for TTY mode with empty config, got nil")
+	}
+}
+
+// TestHandleDevResult_ActionNone verifies that ActionNone (cancelled) returns nil with no output.
+func TestHandleDevResult_ActionNone(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+
+	cfg := &config.Config{
+		Projects: []config.Project{
+			{Name: "myapp", Path: "/home/user/myapp", DevScript: "npm run dev"},
+		},
+	}
+
+	result := projectlist.Result{
+		Action:    projectlist.ActionNone,
+		Cancelled: true,
+	}
+
+	var outputBuffer bytes.Buffer
+	err := cmdproject.HandleDevResult(result, cfg, &outputBuffer)
+	if err != nil {
+		t.Fatalf("expected nil error for ActionNone, got: %v", err)
+	}
+	if outputBuffer.Len() != 0 {
+		t.Errorf("expected no output for ActionNone, got: %q", outputBuffer.String())
+	}
+}
+
+// TestHandleDevResult_ActionDelete verifies that ActionDelete removes the project and saves config.
+func TestHandleDevResult_ActionDelete(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+
+	cfg := &config.Config{
+		Projects: []config.Project{
+			{Name: "myapp", Path: "/home/user/myapp", DevScript: "npm run dev"},
+			{Name: "api", Path: "/home/user/api", DevScript: "go run ."},
+		},
+	}
+
+	result := projectlist.Result{
+		Project: config.Project{Name: "myapp", Path: "/home/user/myapp", DevScript: "npm run dev"},
+		Action:  projectlist.ActionDelete,
+	}
+
+	var outputBuffer bytes.Buffer
+	err := cmdproject.HandleDevResult(result, cfg, &outputBuffer)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	// Verify project was removed from config.
+	for _, proj := range cfg.Projects {
+		if proj.Name == "myapp" {
+			t.Error("expected myapp to be removed from config, but it still exists")
+		}
+	}
+}
+
+// TestHandleDevResult_ActionEditDev_NoEditor verifies that ActionEditDev returns an error
+// when $EDITOR is not set.
+func TestHandleDevResult_ActionEditDev_NoEditor(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	t.Setenv("EDITOR", "")
+
+	cfg := &config.Config{
+		Projects: []config.Project{
+			{Name: "myapp", Path: "/home/user/myapp", DevScript: "npm run dev"},
+		},
+	}
+
+	result := projectlist.Result{
+		Project: config.Project{Name: "myapp", Path: "/home/user/myapp", DevScript: "npm run dev"},
+		Action:  projectlist.ActionEditDev,
+	}
+
+	var outputBuffer bytes.Buffer
+	err := cmdproject.HandleDevResult(result, cfg, &outputBuffer)
+	if err == nil {
+		t.Fatal("expected error when $EDITOR is not set, got nil")
+	}
+	if !strings.Contains(err.Error(), "$EDITOR is not set") {
+		t.Errorf("expected '$EDITOR is not set' in error, got: %v", err)
 	}
 }

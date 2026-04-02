@@ -17,8 +17,8 @@ func TestRegistry_GoProjectModuleExists(t *testing.T) {
 	if !found {
 		t.Fatal("expected to find module 'go-project'")
 	}
-	if len(goProject.Commands) != 4 {
-		t.Errorf("expected 4 commands in go-project, got %d", len(goProject.Commands))
+	if len(goProject.Commands) != 5 {
+		t.Errorf("expected 5 commands in go-project, got %d", len(goProject.Commands))
 	}
 }
 
@@ -44,7 +44,7 @@ func TestRegistry_CommandFlags(t *testing.T) {
 		{name: "gp: NeedsEval=false HasCompletions=true", alias: "gp", needsEval: false, hasCompletions: true},
 		{name: "gpd: NeedsEval=true HasCompletions=true", alias: "gpd", needsEval: true, hasCompletions: true},
 		{name: "gpa: NeedsEval=false HasCompletions=false", alias: "gpa", needsEval: false, hasCompletions: false},
-		{name: "gpr: NeedsEval=false HasCompletions=false", alias: "gpr", needsEval: false, hasCompletions: false},
+		{name: "gpr: NeedsEval=false HasCompletions=true", alias: "gpr", needsEval: false, hasCompletions: true},
 	}
 
 	goProject, found := module.FindModule("go-project")
