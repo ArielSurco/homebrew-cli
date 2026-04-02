@@ -9,6 +9,7 @@ import (
 )
 
 func TestRemoveCommand_NonTTY_ExactMatch(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	cfg := &config.Config{
 		Projects: []config.Project{
 			{Name: "myapp", Path: "/path/to/app"},
@@ -55,6 +56,7 @@ func TestRemoveCommand_NonTTY_NoArgs(t *testing.T) {
 }
 
 func TestRemoveCommand_TTY_ExactMatch(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 	cfg := &config.Config{
 		Projects: []config.Project{
 			{Name: "myapp", Path: "/path/to/app"},
