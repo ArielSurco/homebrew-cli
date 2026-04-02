@@ -36,9 +36,9 @@ homebrew_casks:
       - arielsurco-cli
     repository:
       owner: ArielSurco
-      name: homebrew-cli
+      name: cli
       branch: main
-      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+      token: "{{ .Env.GITHUB_TOKEN }}"
 
 release:
   github:

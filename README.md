@@ -5,7 +5,7 @@ A personal developer CLI for fast project navigation and development workflow au
 ## Install
 
 ```bash
-brew tap ArielSurco/cli
+brew tap ArielSurco/cli https://github.com/ArielSurco/cli
 brew install arielsurco-cli
 ```
 
