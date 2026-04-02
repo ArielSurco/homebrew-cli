@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/charmbracelet/lipgloss"
+	"github.com/muesli/termenv"
 	"golang.org/x/term"
 )
 
@@ -29,6 +31,21 @@ func IsTerminal() bool {
 // whether to launch a TUI.
 func IsInteractiveSession() bool {
 	return term.IsTerminal(int(os.Stdin.Fd()))
+}
+
+// OpenTTY opens /dev/tty and configures lipgloss to use its color profile.
+// This ensures TUI styles render correctly even when stdout is a pipe (e.g.
+// inside command substitution). The caller is responsible for closing the
+// returned file.
+func OpenTTY() (*os.File, error) {
+	tty, err := os.OpenFile("/dev/tty", os.O_RDWR, 0)
+	if err != nil {
+		return nil, fmt.Errorf("opening terminal: %w", err)
+	}
+	ttyOutput := termenv.NewOutput(tty)
+	lipgloss.SetColorProfile(ttyOutput.ColorProfile())
+	lipgloss.SetHasDarkBackground(ttyOutput.HasDarkBackground())
+	return tty, nil
 }
 
 // DetectShell reads $SHELL and returns the detected shell type.

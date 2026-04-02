@@ -73,11 +73,11 @@ func runGoWithOutput(projectName string, isTerminal bool, cfg *config.Config, ou
 	}
 
 	// TTY: launch TUI with optional preFilter.
-	// Open /dev/tty directly so the TUI has full terminal access (styles, colors)
-	// even when stdout is a pipe inside command substitution $(...).
-	tty, err := os.OpenFile("/dev/tty", os.O_RDWR, 0)
+	// Open /dev/tty and configure lipgloss so styles render correctly even when
+	// stdout is a pipe inside command substitution $(...).
+	tty, err := shell.OpenTTY()
 	if err != nil {
-		return fmt.Errorf("opening terminal: %w", err)
+		return err
 	}
 	defer tty.Close()
 
