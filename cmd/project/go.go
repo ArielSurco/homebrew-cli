@@ -118,7 +118,7 @@ func runGoWithOutput(projectName string, isTerminal bool, cfg *config.Config, ou
 
 	selectionResult := finalProgram.(projectlist.Model).Result()
 	if selectionResult.Cancelled {
-		return fmt.Errorf("cancelled")
+		return nil
 	}
 
 	if _, err := fmt.Fprintln(output, selectionResult.Project.Path); err != nil {

@@ -2,7 +2,8 @@
 
 gp() {
   local targetDir
-  targetDir="$(arielsurco-cli project go "$@")" && cd "$targetDir"
+  targetDir="$(arielsurco-cli project go "$@")"
+  [ -n "$targetDir" ] && cd "$targetDir"
 }
 _gp() {
   local -a completionItems

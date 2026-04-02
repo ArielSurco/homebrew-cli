@@ -96,7 +96,7 @@ func runDevWithOutput(projectName string, isTerminal bool, cfg *config.Config, o
 
 	selectionResult := finalProgram.(projectlist.Model).Result()
 	if selectionResult.Cancelled {
-		return fmt.Errorf("cancelled")
+		return nil
 	}
 
 	svc := project.NewService(cfg)

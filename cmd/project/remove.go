@@ -93,7 +93,7 @@ func runRemoveWithTerminalState(projectName string, isTerminal bool, cfg *config
 
 	selectionResult := finalProgram.(projectlist.Model).Result()
 	if selectionResult.Cancelled {
-		return fmt.Errorf("cancelled")
+		return nil
 	}
 
 	return removeByName(selectionResult.Project.Name, cfg)
