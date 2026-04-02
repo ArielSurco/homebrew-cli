@@ -18,3 +18,9 @@ func TestVersion_Default(t *testing.T) {
 		t.Errorf("expected default version 'dev', got %q", cmd.Version)
 	}
 }
+
+func TestVersion_IsSet(t *testing.T) {
+	if cmd.Version == "" {
+		t.Error("Version must not be empty")
+	}
+}
