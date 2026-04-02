@@ -35,7 +35,11 @@ func New(projects []config.Project, preFilter string) Model {
 		items[index] = projectItem{project: existingProject}
 	}
 
-	listModel := list.New(items, list.NewDefaultDelegate(), 80, 20)
+	compactDelegate := list.NewDefaultDelegate()
+	compactDelegate.ShowDescription = false
+	compactDelegate.SetSpacing(0)
+
+	listModel := list.New(items, compactDelegate, 80, 20)
 	listModel.Title = "Select a project"
 
 	if preFilter != "" {

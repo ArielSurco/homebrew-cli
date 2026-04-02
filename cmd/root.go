@@ -1,9 +1,6 @@
 package cmd
 
 import (
-	"context"
-
-	"charm.land/fang/v2"
 	cmdproject "github.com/ArielSurco/cli/cmd/project"
 	"github.com/spf13/cobra"
 )
@@ -12,14 +9,15 @@ import (
 var Version = "dev"
 
 var rootCmd = &cobra.Command{
-	Use:     "arielsurco-cli",
-	Short:   "Personal developer CLI",
-	Version: Version,
+	Use:          "arielsurco-cli",
+	Short:        "Personal developer CLI",
+	Version:      Version,
+	SilenceUsage: true,
 }
 
-// Execute runs the root command via fang.
+// Execute runs the root command.
 func Execute() error {
-	return fang.Execute(context.Background(), rootCmd)
+	return rootCmd.Execute()
 }
 
 func init() {
