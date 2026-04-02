@@ -1,6 +1,7 @@
 package project
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 
@@ -21,8 +22,9 @@ func NewService(cfg *config.Config) *Service {
 // Add registers a new project. Returns ErrDuplicateName if name already exists,
 // ErrRelativePath if path is not absolute.
 func (svc *Service) Add(name, path, devScript string) error {
-	if !filepath.IsAbs(path) {
-		return ErrRelativePath
+	absolutePath, err := filepath.Abs(path)
+	if err != nil {
+		return fmt.Errorf("resolving path: %w", err)
 	}
 	for _, existingProject := range svc.cfg.Projects {
 		if existingProject.Name == name {
@@ -31,7 +33,7 @@ func (svc *Service) Add(name, path, devScript string) error {
 	}
 	svc.cfg.Projects = append(svc.cfg.Projects, config.Project{
 		Name:      name,
-		Path:      path,
+		Path:      absolutePath,
 		DevScript: devScript,
 	})
 	return nil

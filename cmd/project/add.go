@@ -37,10 +37,7 @@ func runAdd(cmd *cobra.Command, args []string) error {
 	svc := project.NewService(cfg)
 	if err := svc.Add(name, path, devScript); err != nil {
 		if errors.Is(err, project.ErrDuplicateName) {
-			return fmt.Errorf("project %q already exists. Use 'project remove %s' first", name, name)
-		}
-		if errors.Is(err, project.ErrRelativePath) {
-			return fmt.Errorf("path must be absolute (got: %q)", path)
+			return fmt.Errorf("project %q already exists. Use 'gpr %s' first", name, name)
 		}
 		return err
 	}

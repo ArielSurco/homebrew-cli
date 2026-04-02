@@ -2,6 +2,7 @@ package project_test
 
 import (
 	"errors"
+	"path/filepath"
 	"testing"
 
 	"github.com/ArielSurco/cli/internal/config"
@@ -37,11 +38,25 @@ func TestAdd_Duplicate(t *testing.T) {
 	}
 }
 
-func TestAdd_RelativePath(t *testing.T) {
+func TestAdd_RelativePath_ResolvesToAbsolute(t *testing.T) {
 	svc := newService()
-	err := svc.Add("myapp", "relative/path", "")
-	if !errors.Is(err, project.ErrRelativePath) {
-		t.Errorf("expected ErrRelativePath, got %v", err)
+	if err := svc.Add("myapp", "relative/path", ""); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	addedProject := svc.List()[0]
+	if !filepath.IsAbs(addedProject.Path) {
+		t.Errorf("expected absolute path, got %q", addedProject.Path)
+	}
+}
+
+func TestAdd_DotPath_ResolvesToCWD(t *testing.T) {
+	svc := newService()
+	if err := svc.Add("myapp", ".", ""); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	addedProject := svc.List()[0]
+	if !filepath.IsAbs(addedProject.Path) {
+		t.Errorf("expected absolute path from '.', got %q", addedProject.Path)
 	}
 }
 

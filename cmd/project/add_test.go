@@ -70,13 +70,13 @@ path = "/existing/path"
 	}
 }
 
-func TestAddCommand_RelativePath(t *testing.T) {
+func TestAddCommand_RelativePath_ResolvesToAbsolute(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", dir)
 
 	cmd := project.Cmd
-	cmd.SetArgs([]string{"add", "myapp", "relative/path"})
-	if err := cmd.Execute(); err == nil {
-		t.Fatal("expected error for relative path, got nil")
+	cmd.SetArgs([]string{"add", "myapp", "."})
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("expected relative path to be resolved, got error: %v", err)
 	}
 }
