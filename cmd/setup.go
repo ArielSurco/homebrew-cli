@@ -65,7 +65,7 @@ func RunSetupWithResult(activeModuleNames []string, saved bool) error {
 
 func applySetupResult(activeModuleNames []string, saved bool) error {
 	if !saved {
-		return fmt.Errorf("setup cancelled")
+		return nil
 	}
 
 	newActiveModules := &config.ActiveModules{

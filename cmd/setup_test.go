@@ -47,13 +47,13 @@ func TestSetupCommand_Saved_SavesActiveModules(t *testing.T) {
 	}
 }
 
-// TestSetupCommand_Cancelled_ReturnsError verifies that when the TUI result
-// has Saved=false (cancelled), the command returns an error.
-func TestSetupCommand_Cancelled_ReturnsError(t *testing.T) {
+// TestSetupCommand_Cancelled_ExitsSilently verifies that when the TUI result
+// has Saved=false (cancelled), the command exits silently without error.
+func TestSetupCommand_Cancelled_ExitsSilently(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 
 	err := cmd.RunSetupWithResult([]string{}, false)
-	if err == nil {
-		t.Fatal("expected error when setup is cancelled, got nil")
+	if err != nil {
+		t.Fatalf("expected nil when setup is cancelled, got: %v", err)
 	}
 }
