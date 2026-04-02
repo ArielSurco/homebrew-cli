@@ -11,6 +11,7 @@ import (
 	"github.com/ArielSurco/cli/internal/shell"
 	"github.com/ArielSurco/cli/internal/tui/projectlist"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/sahilm/fuzzy"
 	"github.com/spf13/cobra"
 )
 
@@ -72,14 +73,38 @@ func runGoWithOutput(projectName string, isTerminal bool, cfg *config.Config, ou
 		return nil
 	}
 
-	// TTY: launch TUI with optional preFilter.
+	// TTY with argument: smart navigation.
+	if projectName != "" {
+		svc := project.NewService(cfg)
+
+		// 1. Exact match → cd directly, no TUI.
+		foundProject, err := svc.FindByName(projectName)
+		if err == nil {
+			if _, err := fmt.Fprintln(output, foundProject.Path); err != nil {
+				return fmt.Errorf("writing output: %w", err)
+			}
+			return nil
+		}
+
+		// 2. Fuzzy matches exist → open TUI with filter pre-applied.
+		projectNames := make([]string, len(cfg.Projects))
+		for index, existingProject := range cfg.Projects {
+			projectNames[index] = existingProject.Name
+		}
+		if len(fuzzy.Find(projectName, projectNames)) == 0 {
+			// 3. No matches at all → error.
+			return fmt.Errorf("project %q not found", projectName)
+		}
+	}
+
+	// TTY: launch TUI (empty filter or fuzzy-matched filter as seed).
 	// Open /dev/tty and configure lipgloss so styles render correctly even when
 	// stdout is a pipe inside command substitution $(...).
 	tty, err := shell.OpenTTY()
 	if err != nil {
 		return err
 	}
-	defer tty.Close()
+	defer tty.Close() //nolint:errcheck
 
 	tuiModel := projectlist.New(cfg.Projects, projectName)
 	finalProgram, err := tea.NewProgram(tuiModel,

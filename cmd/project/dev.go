@@ -82,7 +82,7 @@ func runDevWithOutput(projectName string, isTerminal bool, cfg *config.Config, o
 	if err != nil {
 		return err
 	}
-	defer tty.Close()
+	defer tty.Close() //nolint:errcheck
 
 	tuiModel := projectlist.New(cfg.Projects, projectName)
 	finalProgram, err := tea.NewProgram(tuiModel,

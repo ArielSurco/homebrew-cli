@@ -41,7 +41,7 @@ func RunSetupWithTerminalState(isTerminal bool) error {
 	if err != nil {
 		return err
 	}
-	defer tty.Close()
+	defer tty.Close() //nolint:errcheck
 
 	setupModel := setup.New(module.Registry, currentActive.Modules.Active)
 	finalProgram, err := tea.NewProgram(setupModel,

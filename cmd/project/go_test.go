@@ -85,3 +85,44 @@ func TestGoCommand_TTY_EmptyConfig(t *testing.T) {
 		t.Fatal("expected error for TTY mode with empty config, got nil")
 	}
 }
+
+// TestGoCommand_TTY_ExactMatch verifies that in TTY mode with an exact project name,
+// the command prints the path directly without launching the TUI.
+func TestGoCommand_TTY_ExactMatch(t *testing.T) {
+	cfg := &config.Config{
+		Projects: []config.Project{
+			{Name: "go-cli", Path: "/projects/go-cli"},
+			{Name: "api", Path: "/projects/api"},
+		},
+	}
+
+	var outputBuffer bytes.Buffer
+	err := cmdproject.RunGoWithOutput("go-cli", true, cfg, &outputBuffer)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	output := strings.TrimSpace(outputBuffer.String())
+	if output != "/projects/go-cli" {
+		t.Errorf("expected /projects/go-cli, got %q", output)
+	}
+}
+
+// TestGoCommand_TTY_NoFuzzyMatch verifies that in TTY mode with a name that has no
+// fuzzy matches, the command returns an error without launching the TUI.
+func TestGoCommand_TTY_NoFuzzyMatch(t *testing.T) {
+	cfg := &config.Config{
+		Projects: []config.Project{
+			{Name: "go-cli", Path: "/projects/go-cli"},
+			{Name: "api", Path: "/projects/api"},
+		},
+	}
+
+	err := cmdproject.RunGoWithOutput("zzzznotfound", true, cfg, &bytes.Buffer{})
+	if err == nil {
+		t.Fatal("expected error for TTY with no fuzzy match, got nil")
+	}
+	if !strings.Contains(err.Error(), "not found") {
+		t.Errorf("expected 'not found' error, got: %v", err)
+	}
+}
