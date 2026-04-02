@@ -33,7 +33,7 @@ func runDev(cobraCmd *cobra.Command, args []string) error {
 		projectName = args[0]
 	}
 
-	return runDevWithOutput(projectName, shell.IsTerminal(), cfg, cobraCmd.OutOrStdout())
+	return runDevWithOutput(projectName, shell.IsInteractiveSession(), cfg, cobraCmd.OutOrStdout())
 }
 
 // RunDevWithTerminalState is the testable core using stdout as output.
@@ -77,7 +77,11 @@ func runDevWithOutput(projectName string, isTerminal bool, cfg *config.Config, o
 
 	// TTY: launch TUI with optional preFilter
 	tuiModel := projectlist.New(cfg.Projects, projectName)
-	finalProgram, err := tea.NewProgram(tuiModel, tea.WithAltScreen()).Run()
+	finalProgram, err := tea.NewProgram(tuiModel,
+		tea.WithAltScreen(),
+		tea.WithOutput(os.Stderr),
+		tea.WithInput(os.Stdin),
+	).Run()
 	if err != nil {
 		return fmt.Errorf("running project selector: %w", err)
 	}

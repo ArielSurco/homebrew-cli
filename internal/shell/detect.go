@@ -23,6 +23,14 @@ func IsTerminal() bool {
 	return term.IsTerminal(int(os.Stdout.Fd()))
 }
 
+// IsInteractiveSession reports whether the user is running in an interactive
+// terminal session by checking stdin. This returns true even inside command
+// substitution $(...) where stdout is a pipe, making it suitable for deciding
+// whether to launch a TUI.
+func IsInteractiveSession() bool {
+	return term.IsTerminal(int(os.Stdin.Fd()))
+}
+
 // DetectShell reads $SHELL and returns the detected shell type.
 // Defaults to Bash if unrecognized or unset.
 func DetectShell() Shell {
