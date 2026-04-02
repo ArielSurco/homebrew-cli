@@ -74,7 +74,7 @@ func runGoWithOutput(projectName string, isTerminal bool, cfg *config.Config, ou
 
 	// TTY: launch TUI with optional preFilter
 	tuiModel := projectlist.New(cfg.Projects, projectName)
-	finalProgram, err := tea.NewProgram(tuiModel).Run()
+	finalProgram, err := tea.NewProgram(tuiModel, tea.WithAltScreen()).Run()
 	if err != nil {
 		return fmt.Errorf("running project selector: %w", err)
 	}

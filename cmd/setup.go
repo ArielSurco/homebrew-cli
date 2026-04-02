@@ -38,7 +38,7 @@ func RunSetupWithTerminalState(isTerminal bool) error {
 	}
 
 	setupModel := setup.New(module.Registry, currentActive.Modules.Active)
-	finalProgram, err := tea.NewProgram(setupModel).Run()
+	finalProgram, err := tea.NewProgram(setupModel, tea.WithAltScreen()).Run()
 	if err != nil {
 		return fmt.Errorf("running setup TUI: %w", err)
 	}
