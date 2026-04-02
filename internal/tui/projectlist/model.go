@@ -27,6 +27,12 @@ func (item projectItem) Title() string       { return item.project.Name }
 func (item projectItem) Description() string { return item.project.Path }
 func (item projectItem) FilterValue() string { return item.project.Name }
 
+const (
+	maxVisibleItems = 12
+	// listOverhead accounts for title + help bar lines rendered by bubbles/list.
+	listOverhead = 5
+)
+
 // New creates a projectlist model. If preFilter is non-empty, it is applied
 // as the initial filter text so the list starts narrowed.
 func New(projects []config.Project, preFilter string) Model {
@@ -39,7 +45,13 @@ func New(projects []config.Project, preFilter string) Model {
 	compactDelegate.ShowDescription = false
 	compactDelegate.SetSpacing(0)
 
-	listModel := list.New(items, compactDelegate, 80, 20)
+	visibleItems := len(items)
+	if visibleItems > maxVisibleItems {
+		visibleItems = maxVisibleItems
+	}
+	listHeight := visibleItems + listOverhead
+
+	listModel := list.New(items, compactDelegate, 80, listHeight)
 	listModel.Title = "Select a project"
 
 	if preFilter != "" {
@@ -73,7 +85,8 @@ func (model Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	if sizeMsg, ok := msg.(tea.WindowSizeMsg); ok {
-		model.list.SetSize(sizeMsg.Width, sizeMsg.Height-4)
+		// Only update width — height stays content-driven, not terminal-driven.
+		model.list.SetSize(sizeMsg.Width, model.list.Height())
 	}
 
 	updatedList, listCmd := model.list.Update(msg)
