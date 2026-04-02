@@ -1,6 +1,11 @@
 package cmd
 
 import (
+	"context"
+	"image/color"
+
+	"charm.land/fang/v2"
+	fanglipgloss "charm.land/lipgloss/v2"
 	cmdproject "github.com/ArielSurco/cli/cmd/project"
 	"github.com/spf13/cobra"
 )
@@ -15,9 +20,16 @@ var rootCmd = &cobra.Command{
 	SilenceUsage: true,
 }
 
-// Execute runs the root command.
+// Execute runs the root command via fang with a customized color scheme
+// that removes the codeblock background box.
 func Execute() error {
-	return rootCmd.Execute()
+	return fang.Execute(context.Background(), rootCmd,
+		fang.WithColorSchemeFunc(func(lightDark fanglipgloss.LightDarkFunc) fang.ColorScheme {
+			scheme := fang.DefaultColorScheme(lightDark)
+			scheme.Codeblock = color.Transparent
+			return scheme
+		}),
+	)
 }
 
 func init() {

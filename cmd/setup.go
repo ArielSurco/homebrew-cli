@@ -37,8 +37,18 @@ func RunSetupWithTerminalState(isTerminal bool) error {
 		return fmt.Errorf("loading active modules: %w", err)
 	}
 
+	tty, err := shell.OpenTTY()
+	if err != nil {
+		return err
+	}
+	defer tty.Close()
+
 	setupModel := setup.New(module.Registry, currentActive.Modules.Active)
-	finalProgram, err := tea.NewProgram(setupModel, tea.WithAltScreen()).Run()
+	finalProgram, err := tea.NewProgram(setupModel,
+		tea.WithAltScreen(),
+		tea.WithOutput(tty),
+		tea.WithInput(tty),
+	).Run()
 	if err != nil {
 		return fmt.Errorf("running setup TUI: %w", err)
 	}
