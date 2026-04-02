@@ -28,9 +28,10 @@ func (item projectItem) Description() string { return item.project.Path }
 func (item projectItem) FilterValue() string { return item.project.Name }
 
 const (
-	maxVisibleItems = 12
-	// listOverhead accounts for title (1) + blank separator (1) + help bar (1) + pagination row (1).
-	listOverhead = 4
+	// listWidth is the fixed width of the project list.
+	listWidth = 80
+	// listHeight is fixed to always fit up to 12 items without pagination.
+	listHeight = 20
 )
 
 // New creates a projectlist model. If preFilter is non-empty, it is applied
@@ -45,18 +46,9 @@ func New(projects []config.Project, preFilter string) Model {
 	compactDelegate.ShowDescription = false
 	compactDelegate.SetSpacing(0)
 
-	visibleItems := len(items)
-	if visibleItems > maxVisibleItems {
-		visibleItems = maxVisibleItems
-	}
-	listHeight := visibleItems + listOverhead
-
-	listModel := list.New(items, compactDelegate, 80, listHeight)
+	listModel := list.New(items, compactDelegate, listWidth, listHeight)
 	listModel.Title = "Select a project"
 	listModel.SetShowStatusBar(false)
-	// Force all visible items onto one page to prevent pagination
-	// when items fit within maxVisibleItems.
-	listModel.Paginator.PerPage = visibleItems
 
 	if preFilter != "" {
 		listModel.SetFilteringEnabled(true)
