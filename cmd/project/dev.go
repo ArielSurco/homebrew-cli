@@ -50,7 +50,7 @@ func RunDevWithOutput(projectName string, isTerminal bool, cfg *config.Config, o
 
 func runDevWithOutput(projectName string, isTerminal bool, cfg *config.Config, output io.Writer) error {
 	if len(cfg.Projects) == 0 {
-		return fmt.Errorf("no projects configured: use 'project add' to register one")
+		return fmt.Errorf("no projects configured\n\nAdd your first project:\n  gpa <name> <path>\n\nExample:\n  gpa my-app /Users/%s/projects/my-app", os.Getenv("USER"))
 	}
 
 	// Non-TTY: direct lookup path
