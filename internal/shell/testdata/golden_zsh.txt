@@ -1,0 +1,29 @@
+# arielsurco-cli shell wrappers — generated, do not edit manually
+
+gp() {
+  arielsurco-cli project go "$@"
+}
+_gp() {
+  local -a completionItems
+  completionItems=($(arielsurco-cli __complete project go "${words[2]}" 2>/dev/null | grep -v '^:'))
+  _describe 'project' completionItems
+}
+compdef _gp gp
+
+gpd() {
+  eval "$(arielsurco-cli project dev "$@")"
+}
+_gpd() {
+  local -a completionItems
+  completionItems=($(arielsurco-cli __complete project dev "${words[2]}" 2>/dev/null | grep -v '^:'))
+  _describe 'project' completionItems
+}
+compdef _gpd gpd
+
+gpa() {
+  arielsurco-cli project add "$@"
+}
+
+gpr() {
+  arielsurco-cli project remove "$@"
+}

@@ -1,0 +1,27 @@
+# arielsurco-cli shell wrappers — generated, do not edit manually
+
+gp() {
+  arielsurco-cli project go "$@"
+}
+_gp_completions() {
+  local currentWord="${COMP_WORDS[COMP_CWORD]}"
+  COMPREPLY=($(arielsurco-cli __complete project go "$currentWord" 2>/dev/null | grep -v '^:'))
+}
+complete -F _gp_completions gp
+
+gpd() {
+  eval "$(arielsurco-cli project dev "$@")"
+}
+_gpd_completions() {
+  local currentWord="${COMP_WORDS[COMP_CWORD]}"
+  COMPREPLY=($(arielsurco-cli __complete project dev "$currentWord" 2>/dev/null | grep -v '^:'))
+}
+complete -F _gpd_completions gpd
+
+gpa() {
+  arielsurco-cli project add "$@"
+}
+
+gpr() {
+  arielsurco-cli project remove "$@"
+}
