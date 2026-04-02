@@ -1,69 +1,97 @@
 package project_test
 
 import (
-	"os"
-	"path/filepath"
+	"strings"
 	"testing"
 
-	"github.com/ArielSurco/cli/cmd/project"
-	"github.com/pelletier/go-toml/v2"
+	cmdproject "github.com/ArielSurco/cli/cmd/project"
+	"github.com/ArielSurco/cli/internal/config"
 )
 
-func TestRemoveCommand_Success(t *testing.T) {
-	dir := t.TempDir()
-	t.Setenv("XDG_CONFIG_HOME", dir)
-
-	cfgDir := filepath.Join(dir, "arielsurco-cli")
-	if err := os.MkdirAll(cfgDir, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	existing := `[[projects]]
-name = "myapp"
-path = "/path/to/app"
-
-[[projects]]
-name = "other"
-path = "/path/to/other"
-`
-	if err := os.WriteFile(filepath.Join(cfgDir, "config.toml"), []byte(existing), 0o644); err != nil {
-		t.Fatal(err)
+func TestRemoveCommand_NonTTY_ExactMatch(t *testing.T) {
+	cfg := &config.Config{
+		Projects: []config.Project{
+			{Name: "myapp", Path: "/path/to/app"},
+			{Name: "other", Path: "/path/to/other"},
+		},
 	}
 
-	cmd := project.Cmd
-	cmd.SetArgs([]string{"remove", "myapp"})
-	if err := cmd.Execute(); err != nil {
+	if err := cmdproject.RunRemoveWithTerminalState("myapp", false, cfg); err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	data, err := os.ReadFile(filepath.Join(cfgDir, "config.toml"))
-	if err != nil {
-		t.Fatalf("config file missing: %v", err)
-	}
-
-	type configFile struct {
-		Projects []struct {
-			Name string `toml:"name"`
-		} `toml:"projects"`
-	}
-	var cfg configFile
-	if err := toml.Unmarshal(data, &cfg); err != nil {
-		t.Fatalf("failed to parse config: %v", err)
-	}
 	if len(cfg.Projects) != 1 {
 		t.Fatalf("expected 1 project after remove, got %d", len(cfg.Projects))
 	}
 	if cfg.Projects[0].Name != "other" {
-		t.Errorf("expected 'other', got %q", cfg.Projects[0].Name)
+		t.Errorf("expected 'other' to remain, got %q", cfg.Projects[0].Name)
 	}
 }
 
-func TestRemoveCommand_NotFound(t *testing.T) {
-	dir := t.TempDir()
-	t.Setenv("XDG_CONFIG_HOME", dir)
+func TestRemoveCommand_NonTTY_NotFound(t *testing.T) {
+	cfg := &config.Config{
+		Projects: []config.Project{
+			{Name: "myapp", Path: "/path/to/app"},
+		},
+	}
 
-	cmd := project.Cmd
-	cmd.SetArgs([]string{"remove", "nonexistent"})
-	if err := cmd.Execute(); err == nil {
+	err := cmdproject.RunRemoveWithTerminalState("nonexistent", false, cfg)
+	if err == nil {
 		t.Fatal("expected error for nonexistent project, got nil")
+	}
+}
+
+func TestRemoveCommand_NonTTY_NoArgs(t *testing.T) {
+	cfg := &config.Config{
+		Projects: []config.Project{
+			{Name: "myapp", Path: "/path/to/app"},
+		},
+	}
+
+	err := cmdproject.RunRemoveWithTerminalState("", false, cfg)
+	if err == nil {
+		t.Fatal("expected error for non-TTY with no args, got nil")
+	}
+}
+
+func TestRemoveCommand_TTY_ExactMatch(t *testing.T) {
+	cfg := &config.Config{
+		Projects: []config.Project{
+			{Name: "myapp", Path: "/path/to/app"},
+			{Name: "other", Path: "/path/to/other"},
+		},
+	}
+
+	if err := cmdproject.RunRemoveWithTerminalState("myapp", true, cfg); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(cfg.Projects) != 1 {
+		t.Fatalf("expected 1 project after remove, got %d", len(cfg.Projects))
+	}
+}
+
+func TestRemoveCommand_TTY_NoFuzzyMatch(t *testing.T) {
+	cfg := &config.Config{
+		Projects: []config.Project{
+			{Name: "myapp", Path: "/path/to/app"},
+		},
+	}
+
+	err := cmdproject.RunRemoveWithTerminalState("zzzznotfound", true, cfg)
+	if err == nil {
+		t.Fatal("expected error for no fuzzy match, got nil")
+	}
+	if !strings.Contains(err.Error(), "not found") {
+		t.Errorf("expected 'not found' error, got: %v", err)
+	}
+}
+
+func TestRemoveCommand_TTY_EmptyConfig(t *testing.T) {
+	cfg := &config.Config{Projects: []config.Project{}}
+
+	err := cmdproject.RunRemoveWithTerminalState("", true, cfg)
+	if err == nil {
+		t.Fatal("expected error for empty config, got nil")
 	}
 }
