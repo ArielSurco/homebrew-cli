@@ -36,11 +36,17 @@ func buildCommandBlock(commandDef module.CommandDef, targetShell Shell) string {
 	// Function definition
 	sb.WriteString(commandDef.Alias)
 	sb.WriteString("() {\n")
-	if commandDef.NeedsEval {
+	switch {
+	case commandDef.CdOutput:
+		sb.WriteString("  local targetDir\n")
+		sb.WriteString("  targetDir=\"$(arielsurco-cli ")
+		sb.WriteString(commandDef.CobraCmd)
+		sb.WriteString(" \"$@\")\" && cd \"$targetDir\"\n")
+	case commandDef.NeedsEval:
 		sb.WriteString("  eval \"$(arielsurco-cli ")
 		sb.WriteString(commandDef.CobraCmd)
 		sb.WriteString(" \"$@\")\"\n")
-	} else {
+	default:
 		sb.WriteString("  arielsurco-cli ")
 		sb.WriteString(commandDef.CobraCmd)
 		sb.WriteString(" \"$@\"\n")

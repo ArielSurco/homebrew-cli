@@ -5,6 +5,7 @@ type CommandDef struct {
 	Alias          string // shell function name, e.g. "gp"
 	CobraCmd       string // cobra subcommand path, e.g. "project go"
 	NeedsEval      bool   // true = wrap in eval "$(...)"; false = call directly
+	CdOutput       bool   // true = capture output and cd into it (e.g. gp)
 	HasCompletions bool   // true = emit completion wiring (bash + zsh)
 	Description    string
 }
@@ -21,7 +22,7 @@ var Registry = []Module{
 	{
 		Name: "go-project",
 		Commands: []CommandDef{
-			{Alias: "gp", CobraCmd: "project go", NeedsEval: false, HasCompletions: true, Description: "Navigate to a project directory"},
+			{Alias: "gp", CobraCmd: "project go", NeedsEval: false, CdOutput: true, HasCompletions: true, Description: "Navigate to a project directory"},
 			{Alias: "gpd", CobraCmd: "project dev", NeedsEval: true, HasCompletions: true, Description: "Run the dev script for a project"},
 			{Alias: "gpa", CobraCmd: "project add", NeedsEval: false, HasCompletions: false, Description: "Register a new project"},
 			{Alias: "gpr", CobraCmd: "project remove", NeedsEval: false, HasCompletions: false, Description: "Unregister a project"},

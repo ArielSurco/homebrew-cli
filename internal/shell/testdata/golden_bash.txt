@@ -1,7 +1,8 @@
 # arielsurco-cli shell wrappers — generated, do not edit manually
 
 gp() {
-  arielsurco-cli project go "$@"
+  local targetDir
+  targetDir="$(arielsurco-cli project go "$@")" && cd "$targetDir"
 }
 _gp_completions() {
   local currentWord="${COMP_WORDS[COMP_CWORD]}"
