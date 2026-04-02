@@ -29,8 +29,8 @@ func (item projectItem) FilterValue() string { return item.project.Name }
 
 const (
 	maxVisibleItems = 12
-	// listOverhead accounts for title + help bar lines rendered by bubbles/list.
-	listOverhead = 5
+	// listOverhead accounts for title (2 lines) + help bar (1 line) + pagination (1 line).
+	listOverhead = 4
 )
 
 // New creates a projectlist model. If preFilter is non-empty, it is applied
@@ -53,6 +53,7 @@ func New(projects []config.Project, preFilter string) Model {
 
 	listModel := list.New(items, compactDelegate, 80, listHeight)
 	listModel.Title = "Select a project"
+	listModel.SetShowStatusBar(false)
 
 	if preFilter != "" {
 		listModel.SetFilteringEnabled(true)
