@@ -72,12 +72,20 @@ func runGoWithOutput(projectName string, isTerminal bool, cfg *config.Config, ou
 		return nil
 	}
 
-	// TTY: launch TUI with optional preFilter
+	// TTY: launch TUI with optional preFilter.
+	// Open /dev/tty directly so the TUI has full terminal access (styles, colors)
+	// even when stdout is a pipe inside command substitution $(...).
+	tty, err := os.OpenFile("/dev/tty", os.O_RDWR, 0)
+	if err != nil {
+		return fmt.Errorf("opening terminal: %w", err)
+	}
+	defer tty.Close()
+
 	tuiModel := projectlist.New(cfg.Projects, projectName)
 	finalProgram, err := tea.NewProgram(tuiModel,
 		tea.WithAltScreen(),
-		tea.WithOutput(os.Stderr),
-		tea.WithInput(os.Stdin),
+		tea.WithOutput(tty),
+		tea.WithInput(tty),
 	).Run()
 	if err != nil {
 		return fmt.Errorf("running project selector: %w", err)
