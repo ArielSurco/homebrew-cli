@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/arielsurco/go-cli/internal/config"
+	"github.com/ArielSurco/cli/internal/config"
 )
 
 // Service handles project business logic.

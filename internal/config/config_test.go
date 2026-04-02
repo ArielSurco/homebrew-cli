@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/arielsurco/go-cli/internal/config"
+	"github.com/ArielSurco/cli/internal/config"
 )
 
 func TestLoad_MissingFile(t *testing.T) {

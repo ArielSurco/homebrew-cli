@@ -8,8 +8,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/x/exp/teatest"
 
-	"github.com/arielsurco/go-cli/internal/config"
-	"github.com/arielsurco/go-cli/internal/tui/projectlist"
+	"github.com/ArielSurco/cli/internal/config"
+	"github.com/ArielSurco/cli/internal/tui/projectlist"
 )
 
 func TestProjectList_SelectWithEnter(t *testing.T) {

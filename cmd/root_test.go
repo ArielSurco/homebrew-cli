@@ -3,7 +3,7 @@ package cmd_test
 import (
 	"testing"
 
-	"github.com/arielsurco/go-cli/cmd"
+	"github.com/ArielSurco/cli/cmd"
 )
 
 func TestExecute_NoError(t *testing.T) {

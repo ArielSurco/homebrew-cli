@@ -3,7 +3,7 @@ package shell_test
 import (
 	"testing"
 
-	"github.com/arielsurco/go-cli/internal/shell"
+	"github.com/ArielSurco/cli/internal/shell"
 )
 
 func TestDetectShell_Zsh(t *testing.T) {

@@ -3,7 +3,7 @@ package shell
 import (
 	"strings"
 
-	"github.com/arielsurco/go-cli/internal/module"
+	"github.com/ArielSurco/cli/internal/module"
 )
 
 // Generate emits shell wrapper functions for all commands in the given modules.

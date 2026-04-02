@@ -1,7 +1,7 @@
 package projectlist
 
 import (
-	"github.com/arielsurco/go-cli/internal/config"
+	"github.com/ArielSurco/cli/internal/config"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 )

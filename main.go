@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"github.com/arielsurco/go-cli/cmd"
+	"github.com/ArielSurco/cli/cmd"
 )
 
 func main() {

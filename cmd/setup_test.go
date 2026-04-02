@@ -3,8 +3,8 @@ package cmd_test
 import (
 	"testing"
 
-	cmd "github.com/arielsurco/go-cli/cmd"
-	"github.com/arielsurco/go-cli/internal/config"
+	cmd "github.com/ArielSurco/cli/cmd"
+	"github.com/ArielSurco/cli/internal/config"
 )
 
 // TestSetupCommand_NonTTY_ReturnsError verifies that in non-TTY mode

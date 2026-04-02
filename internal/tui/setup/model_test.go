@@ -8,8 +8,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/x/exp/teatest"
 
-	"github.com/arielsurco/go-cli/internal/module"
-	"github.com/arielsurco/go-cli/internal/tui/setup"
+	"github.com/ArielSurco/cli/internal/module"
+	"github.com/ArielSurco/cli/internal/tui/setup"
 )
 
 func TestSetup_SaveWithCtrlS(t *testing.T) {

@@ -3,7 +3,7 @@ package module_test
 import (
 	"testing"
 
-	"github.com/arielsurco/go-cli/internal/module"
+	"github.com/ArielSurco/cli/internal/module"
 )
 
 func TestRegistry_HasAtLeastOneModule(t *testing.T) {

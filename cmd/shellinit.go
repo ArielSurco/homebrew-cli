@@ -3,9 +3,9 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/arielsurco/go-cli/internal/config"
-	"github.com/arielsurco/go-cli/internal/module"
-	"github.com/arielsurco/go-cli/internal/shell"
+	"github.com/ArielSurco/cli/internal/config"
+	"github.com/ArielSurco/cli/internal/module"
+	"github.com/ArielSurco/cli/internal/shell"
 	"github.com/spf13/cobra"
 )
 

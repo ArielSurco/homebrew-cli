@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/arielsurco/go-cli/internal/config"
-	"github.com/arielsurco/go-cli/internal/project"
+	"github.com/ArielSurco/cli/internal/config"
+	"github.com/ArielSurco/cli/internal/project"
 )
 
 func newService(projects ...config.Project) *project.Service {

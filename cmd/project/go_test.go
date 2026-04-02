@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	cmdproject "github.com/arielsurco/go-cli/cmd/project"
-	"github.com/arielsurco/go-cli/internal/config"
+	cmdproject "github.com/ArielSurco/cli/cmd/project"
+	"github.com/ArielSurco/cli/internal/config"
 )
 
 // TestGoCommand_NonTTY_NoArgs verifies that in non-TTY mode without a project name,

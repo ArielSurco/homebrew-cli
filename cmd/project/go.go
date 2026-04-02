@@ -6,10 +6,10 @@ import (
 	"io"
 	"os"
 
-	"github.com/arielsurco/go-cli/internal/config"
-	"github.com/arielsurco/go-cli/internal/project"
-	"github.com/arielsurco/go-cli/internal/shell"
-	"github.com/arielsurco/go-cli/internal/tui/projectlist"
+	"github.com/ArielSurco/cli/internal/config"
+	"github.com/ArielSurco/cli/internal/project"
+	"github.com/ArielSurco/cli/internal/shell"
+	"github.com/ArielSurco/cli/internal/tui/projectlist"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 )

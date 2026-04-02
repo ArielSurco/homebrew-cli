@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/arielsurco/go-cli/cmd"
-	"github.com/arielsurco/go-cli/internal/module"
-	"github.com/arielsurco/go-cli/internal/shell"
+	"github.com/ArielSurco/cli/cmd"
+	"github.com/ArielSurco/cli/internal/module"
+	"github.com/ArielSurco/cli/internal/shell"
 )
 
 func TestRunShellInitWithShell_Bash(t *testing.T) {

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/arielsurco/go-cli/cmd/project"
+	"github.com/ArielSurco/cli/cmd/project"
 	"github.com/pelletier/go-toml/v2"
 )
 

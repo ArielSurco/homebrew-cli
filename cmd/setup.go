@@ -3,10 +3,10 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/arielsurco/go-cli/internal/config"
-	"github.com/arielsurco/go-cli/internal/module"
-	"github.com/arielsurco/go-cli/internal/shell"
-	"github.com/arielsurco/go-cli/internal/tui/setup"
+	"github.com/ArielSurco/cli/internal/config"
+	"github.com/ArielSurco/cli/internal/module"
+	"github.com/ArielSurco/cli/internal/shell"
+	"github.com/ArielSurco/cli/internal/tui/setup"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 )

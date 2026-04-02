@@ -3,7 +3,7 @@ package setup
 import (
 	"fmt"
 
-	"github.com/arielsurco/go-cli/internal/module"
+	"github.com/ArielSurco/cli/internal/module"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )

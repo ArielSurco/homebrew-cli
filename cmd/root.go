@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"charm.land/fang/v2"
-	cmdproject "github.com/arielsurco/go-cli/cmd/project"
+	cmdproject "github.com/ArielSurco/cli/cmd/project"
 	"github.com/spf13/cobra"
 )
 

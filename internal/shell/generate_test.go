@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/arielsurco/go-cli/internal/module"
-	"github.com/arielsurco/go-cli/internal/shell"
+	"github.com/ArielSurco/cli/internal/module"
+	"github.com/ArielSurco/cli/internal/shell"
 )
 
 var updateGolden = flag.Bool("update", false, "update golden files")

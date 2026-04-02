@@ -1,4 +1,4 @@
-module github.com/arielsurco/go-cli
+module github.com/ArielSurco/cli
 
 go 1.25.2
 

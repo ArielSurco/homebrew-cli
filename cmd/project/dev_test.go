@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	cmdproject "github.com/arielsurco/go-cli/cmd/project"
-	"github.com/arielsurco/go-cli/internal/config"
-	"github.com/arielsurco/go-cli/internal/project"
+	cmdproject "github.com/ArielSurco/cli/cmd/project"
+	"github.com/ArielSurco/cli/internal/config"
+	"github.com/ArielSurco/cli/internal/project"
 )
 
 // TestDevCommand_NonTTY_WithArg_Found verifies that in non-TTY mode with a known

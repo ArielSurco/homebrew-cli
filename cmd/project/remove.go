@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/arielsurco/go-cli/internal/config"
-	"github.com/arielsurco/go-cli/internal/project"
+	"github.com/ArielSurco/cli/internal/config"
+	"github.com/ArielSurco/cli/internal/project"
 	"github.com/spf13/cobra"
 )
 
