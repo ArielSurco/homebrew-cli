@@ -5,8 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/adrg/xdg"
 )
 
 const shellInitContent = `eval "$(arielsurco-cli shell-init)"
@@ -14,12 +12,18 @@ const shellInitContent = `eval "$(arielsurco-cli shell-init)"
 
 const shellInitFileName = "shell-init.sh"
 
+// shellInitDir returns ~/.config/arielsurco-cli for the given home directory.
+// Uses a fixed path instead of XDG to avoid platform-specific quirks
+// (e.g. ~/Library/Application Support on macOS with spaces in the path).
+func shellInitDir(homeDir string) string {
+	return filepath.Join(homeDir, ".config", "arielsurco-cli")
+}
+
 // CreateShellInitFile creates ~/.config/arielsurco-cli/shell-init.sh with the
-// eval command. Returns the path to the created file. Uses XDG config path and
-// writes atomically via tempfile + rename, matching config.go patterns.
-func CreateShellInitFile() (string, error) {
-	xdg.Reload()
-	initDir := filepath.Join(xdg.ConfigHome, "arielsurco-cli")
+// eval command. Returns the path to the created file. Writes atomically via
+// tempfile + rename.
+func CreateShellInitFile(homeDir string) (string, error) {
+	initDir := shellInitDir(homeDir)
 	initPath := filepath.Join(initDir, shellInitFileName)
 
 	if err := os.MkdirAll(initDir, 0o755); err != nil {
@@ -63,16 +67,15 @@ func RCFilePath(targetShell Shell, homeDir string) (string, error) {
 }
 
 // shellInitBlock returns the block to inject into the rc file.
-// initPath should use ~ instead of the literal home directory.
-func shellInitBlock(tildeInitPath string) string {
+func shellInitBlock(initPath string) string {
 	return fmt.Sprintf(`
 # Load arielsurco-cli
-if [[ -f "%s" ]]; then
-  source "%s"
+if [[ -f %s ]]; then
+  source %s
 else
   echo "Failed while loading arielsurco-cli"
 fi
-`, tildeInitPath, tildeInitPath)
+`, initPath, initPath)
 }
 
 // replaceHomeWithVar replaces the home directory prefix with $HOME in the given path.
@@ -96,7 +99,7 @@ func InjectShellInit(targetShell Shell) (bool, error) {
 // InjectShellInitWithHome is the testable core of InjectShellInit, accepting a
 // custom home directory.
 func InjectShellInitWithHome(targetShell Shell, homeDir string) (bool, error) {
-	initPath, err := CreateShellInitFile()
+	initPath, err := CreateShellInitFile(homeDir)
 	if err != nil {
 		return false, fmt.Errorf("creating shell init file: %w", err)
 	}
@@ -106,7 +109,7 @@ func InjectShellInitWithHome(targetShell Shell, homeDir string) (bool, error) {
 		return false, err
 	}
 
-	tildeInitPath := replaceHomeWithVar(initPath, homeDir)
+	varInitPath := replaceHomeWithVar(initPath, homeDir)
 	marker := "arielsurco-cli/shell-init.sh"
 
 	// Read existing rc file content (may not exist yet).
@@ -121,7 +124,7 @@ func InjectShellInitWithHome(targetShell Shell, homeDir string) (bool, error) {
 	}
 
 	// Append the block.
-	block := shellInitBlock(tildeInitPath)
+	block := shellInitBlock(varInitPath)
 
 	f, err := os.OpenFile(rcPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 	if err != nil {

@@ -10,15 +10,14 @@ import (
 )
 
 func TestCreateShellInitFile(t *testing.T) {
-	tmpDir := t.TempDir()
-	t.Setenv("XDG_CONFIG_HOME", tmpDir)
+	homeDir := t.TempDir()
 
-	initPath, err := shell.CreateShellInitFile()
+	initPath, err := shell.CreateShellInitFile(homeDir)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	expectedPath := filepath.Join(tmpDir, "arielsurco-cli", "shell-init.sh")
+	expectedPath := filepath.Join(homeDir, ".config", "arielsurco-cli", "shell-init.sh")
 	if initPath != expectedPath {
 		t.Errorf("expected path %q, got %q", expectedPath, initPath)
 	}
@@ -60,8 +59,6 @@ func TestRCFilePath_Zsh(t *testing.T) {
 
 func TestInjectShellInit_NewInjection(t *testing.T) {
 	homeDir := t.TempDir()
-	configDir := t.TempDir()
-	t.Setenv("XDG_CONFIG_HOME", configDir)
 
 	// Create an empty rc file.
 	rcPath := filepath.Join(homeDir, ".zshrc")
@@ -92,8 +89,6 @@ func TestInjectShellInit_NewInjection(t *testing.T) {
 
 func TestInjectShellInit_AlreadyInjected(t *testing.T) {
 	homeDir := t.TempDir()
-	configDir := t.TempDir()
-	t.Setenv("XDG_CONFIG_HOME", configDir)
 
 	// Create rc file with the marker already present.
 	rcPath := filepath.Join(homeDir, ".zshrc")
@@ -122,8 +117,6 @@ func TestInjectShellInit_AlreadyInjected(t *testing.T) {
 
 func TestInjectShellInit_RCFileDoesNotExist(t *testing.T) {
 	homeDir := t.TempDir()
-	configDir := t.TempDir()
-	t.Setenv("XDG_CONFIG_HOME", configDir)
 
 	// Do NOT create the rc file — it should be created by InjectShellInit.
 	newlyInjected, err := shell.InjectShellInitWithHome(shell.Zsh, homeDir)
@@ -146,8 +139,6 @@ func TestInjectShellInit_RCFileDoesNotExist(t *testing.T) {
 
 func TestInjectShellInit_Idempotent(t *testing.T) {
 	homeDir := t.TempDir()
-	configDir := t.TempDir()
-	t.Setenv("XDG_CONFIG_HOME", configDir)
 
 	rcPath := filepath.Join(homeDir, ".zshrc")
 	if err := os.WriteFile(rcPath, []byte(""), 0o644); err != nil {
@@ -189,8 +180,6 @@ func TestInjectShellInit_Idempotent(t *testing.T) {
 
 func TestInjectShellInit_PreservesExistingContent(t *testing.T) {
 	homeDir := t.TempDir()
-	configDir := t.TempDir()
-	t.Setenv("XDG_CONFIG_HOME", configDir)
 
 	rcPath := filepath.Join(homeDir, ".bashrc")
 	existingContent := "export PATH=/usr/local/bin:$PATH\nalias ll='ls -la'\n"
@@ -221,5 +210,33 @@ func TestInjectShellInit_PreservesExistingContent(t *testing.T) {
 	// New block must be appended.
 	if !strings.Contains(contentStr, "arielsurco-cli/shell-init.sh") {
 		t.Error("expected rc file to contain shell-init.sh source block")
+	}
+}
+
+func TestInjectShellInit_ShellInitFileCreatedInFixedPath(t *testing.T) {
+	homeDir := t.TempDir()
+
+	newlyInjected, err := shell.InjectShellInitWithHome(shell.Bash, homeDir)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !newlyInjected {
+		t.Error("expected newly injected to be true")
+	}
+
+	// Verify shell-init.sh is in ~/.config/arielsurco-cli/, not XDG.
+	expectedInitPath := filepath.Join(homeDir, ".config", "arielsurco-cli", "shell-init.sh")
+	if _, err := os.Stat(expectedInitPath); os.IsNotExist(err) {
+		t.Errorf("expected shell-init.sh at %q, but it does not exist", expectedInitPath)
+	}
+
+	// Verify the rc file references $HOME/.config path.
+	rcPath := filepath.Join(homeDir, ".bashrc")
+	content, err := os.ReadFile(rcPath)
+	if err != nil {
+		t.Fatalf("failed to read rc file: %v", err)
+	}
+	if !strings.Contains(string(content), "$HOME/.config/arielsurco-cli/shell-init.sh") {
+		t.Errorf("expected rc file to reference $HOME/.config path, got:\n%s", string(content))
 	}
 }
