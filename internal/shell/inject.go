@@ -75,10 +75,10 @@ fi
 `, tildeInitPath, tildeInitPath)
 }
 
-// replaceHomeWithTilde replaces the home directory prefix with ~ in the given path.
-func replaceHomeWithTilde(path, homeDir string) string {
+// replaceHomeWithVar replaces the home directory prefix with $HOME in the given path.
+func replaceHomeWithVar(path, homeDir string) string {
 	if strings.HasPrefix(path, homeDir) {
-		return "~" + path[len(homeDir):]
+		return "$HOME" + path[len(homeDir):]
 	}
 	return path
 }
@@ -106,7 +106,7 @@ func InjectShellInitWithHome(targetShell Shell, homeDir string) (bool, error) {
 		return false, err
 	}
 
-	tildeInitPath := replaceHomeWithTilde(initPath, homeDir)
+	tildeInitPath := replaceHomeWithVar(initPath, homeDir)
 	marker := "arielsurco-cli/shell-init.sh"
 
 	// Read existing rc file content (may not exist yet).
