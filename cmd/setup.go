@@ -54,16 +54,17 @@ func RunSetupWithTerminalState(isTerminal bool) error {
 	}
 
 	selectionResult := finalProgram.(setup.Model).Result()
-	return applySetupResult(selectionResult.ActiveModules, selectionResult.Saved)
+	return applySetupResult(selectionResult.ActiveModules, selectionResult.Saved, "")
 }
 
 // RunSetupWithResult applies a pre-computed TUI result. Used for testing the save path.
+// homeDir overrides os.UserHomeDir() when non-empty (for test isolation).
 // Exported for testing.
-func RunSetupWithResult(activeModuleNames []string, saved bool) error {
-	return applySetupResult(activeModuleNames, saved)
+func RunSetupWithResult(activeModuleNames []string, saved bool, homeDir string) error {
+	return applySetupResult(activeModuleNames, saved, homeDir)
 }
 
-func applySetupResult(activeModuleNames []string, saved bool) error {
+func applySetupResult(activeModuleNames []string, saved bool, homeDir string) error {
 	if !saved {
 		return nil
 	}
@@ -78,7 +79,14 @@ func applySetupResult(activeModuleNames []string, saved bool) error {
 	}
 
 	detectedShell := shell.DetectShell()
-	newlyInjected, err := shell.InjectShellInit(detectedShell)
+
+	var newlyInjected bool
+	var err error
+	if homeDir != "" {
+		newlyInjected, err = shell.InjectShellInitWithHome(detectedShell, homeDir)
+	} else {
+		newlyInjected, err = shell.InjectShellInit(detectedShell)
+	}
 	if err != nil {
 		fmt.Println("Setup saved. Run 'eval \"$(arielsurco-cli shell-init)\"' to apply.")
 		return nil

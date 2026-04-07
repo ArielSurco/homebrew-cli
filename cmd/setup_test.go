@@ -26,10 +26,11 @@ func TestSetupCommand_NonTTY_ReturnsError(t *testing.T) {
 // has Saved=true, the active modules are written to config.
 func TestSetupCommand_Saved_SavesActiveModules(t *testing.T) {
 	tmpDir := t.TempDir()
+	homeDir := t.TempDir()
 	t.Setenv("XDG_CONFIG_HOME", tmpDir)
 
 	activeModuleNames := []string{"go-project"}
-	err := cmd.RunSetupWithResult(activeModuleNames, true)
+	err := cmd.RunSetupWithResult(activeModuleNames, true, homeDir)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -52,7 +53,7 @@ func TestSetupCommand_Saved_SavesActiveModules(t *testing.T) {
 func TestSetupCommand_Cancelled_ExitsSilently(t *testing.T) {
 	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
 
-	err := cmd.RunSetupWithResult([]string{}, false)
+	err := cmd.RunSetupWithResult([]string{}, false, "")
 	if err != nil {
 		t.Fatalf("expected nil when setup is cancelled, got: %v", err)
 	}
