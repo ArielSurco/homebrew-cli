@@ -67,8 +67,8 @@ func RCFilePath(targetShell Shell, homeDir string) (string, error) {
 func shellInitBlock(tildeInitPath string) string {
 	return fmt.Sprintf(`
 # Load arielsurco-cli
-if [[ -f %s ]]; then
-  source %s
+if [[ -f "%s" ]]; then
+  source "%s"
 else
   echo "Failed while loading arielsurco-cli"
 fi
