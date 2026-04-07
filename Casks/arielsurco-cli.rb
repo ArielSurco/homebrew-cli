@@ -5,22 +5,22 @@ cask "arielsurco-cli" do
   on_macos do
     on_intel do
       url "https://github.com/ArielSurco/cli/releases/download/v#{version}/cli_#{version}_darwin_amd64.tar.gz"
-      sha256 "63b1b6fe007e818551e188bef062eec23cf2abee246c2e50d98d7723e82f3573"
+      sha256 "8e101d757a25d56d124a278af6138f9d8bb148372a645eade742c562f249ea8f"
     end
     on_arm do
       url "https://github.com/ArielSurco/cli/releases/download/v#{version}/cli_#{version}_darwin_arm64.tar.gz"
-      sha256 "937e873492f4a0ce14b36ad5570bc15a83ae70868cb8aebbe77554231bd0845b"
+      sha256 "5e7d8652dc7af1ef46e00fe4333e17ab249ba9bf26142772a6ac1b44ca0ea3c7"
     end
   end
 
   on_linux do
     on_intel do
       url "https://github.com/ArielSurco/cli/releases/download/v#{version}/cli_#{version}_linux_amd64.tar.gz"
-      sha256 "5ec7d78f5d96bcbbbd6beee8367e68e2818743fee1cb5cf3d96d6deb2aacae94"
+      sha256 "92ccee8b9e6c1fa171b2b25bc1054ce0447d723ce03a9194e34621b824aac3b4"
     end
     on_arm do
       url "https://github.com/ArielSurco/cli/releases/download/v#{version}/cli_#{version}_linux_arm64.tar.gz"
-      sha256 "f34df5d32c12f3125755ee3949e49d18a4c01475af7e5f7b83f360f803ecb56d"
+      sha256 "be54d945830d011f305087b53ce9cbdf0c9643b4f071f2654f3acf722ce8d683"
     end
   end
 
