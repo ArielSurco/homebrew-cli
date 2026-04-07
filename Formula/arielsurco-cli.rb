@@ -5,21 +5,21 @@
 class ArielsurcoCli < Formula
   desc "Personal developer CLI with project navigation and TUI"
   homepage "https://github.com/ArielSurco/cli"
-  version "0.1.0"
+  version "0.2.0"
   license "MIT"
 
   on_macos do
     if Hardware::CPU.intel?
-      url "https://github.com/ArielSurco/cli/releases/download/v0.1.0/cli_0.1.0_darwin_amd64.tar.gz"
-      sha256 "4bdfb02714bb358ad5c03e266c406d40e6ec18f27e42db104e915b78cfe08318"
+      url "https://github.com/ArielSurco/cli/releases/download/v0.2.0/cli_0.2.0_darwin_amd64.tar.gz"
+      sha256 "aff1083e479818675940610ff85295e6e1d284c4eaf23b5ba0de2355e1d5e5cc"
 
       define_method(:install) do
         bin.install "arielsurco-cli"
       end
     end
     if Hardware::CPU.arm?
-      url "https://github.com/ArielSurco/cli/releases/download/v0.1.0/cli_0.1.0_darwin_arm64.tar.gz"
-      sha256 "1687da46221505b58652a45477bb1f1ff2a3de325a9eb1e285e5cde0b3a51dee"
+      url "https://github.com/ArielSurco/cli/releases/download/v0.2.0/cli_0.2.0_darwin_arm64.tar.gz"
+      sha256 "946b3963395d89db6d9932d351c7ed2127f797019c6e2ca78b95e0f2741f7421"
 
       define_method(:install) do
         bin.install "arielsurco-cli"
@@ -29,15 +29,15 @@ class ArielsurcoCli < Formula
 
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
-      url "https://github.com/ArielSurco/cli/releases/download/v0.1.0/cli_0.1.0_linux_amd64.tar.gz"
-      sha256 "5c4b057d267b753f3e46d8400bc0228c886396f13c2130c3e7f1a5b215daead0"
+      url "https://github.com/ArielSurco/cli/releases/download/v0.2.0/cli_0.2.0_linux_amd64.tar.gz"
+      sha256 "08ddc6e4eae39f1a37675a102d1cf699df1a4f7080dd9af27a3aac5ce316c39a"
       define_method(:install) do
         bin.install "arielsurco-cli"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
-      url "https://github.com/ArielSurco/cli/releases/download/v0.1.0/cli_0.1.0_linux_arm64.tar.gz"
-      sha256 "62badf29efb8062dd63a704be7d7202592eb1af75506702e67a5bd81497c5c56"
+      url "https://github.com/ArielSurco/cli/releases/download/v0.2.0/cli_0.2.0_linux_arm64.tar.gz"
+      sha256 "07f9eca1c26f4ea6531c7b259af9bfef6d2ce45b16b898681396ca2af21727ae"
       define_method(:install) do
         bin.install "arielsurco-cli"
       end
