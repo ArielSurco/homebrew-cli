@@ -1,19 +1,21 @@
 ---
 name: shell-integration
 description: >
-  Shell wrapper generation, TTY detection, eval rules, and OpenTTY pattern for arielsurco-cli.
-  Trigger: When modifying shell-init, wrappers, CommandDef, TTY detection, or adding commands
-  that interact with the parent shell.
+  Shell wrapper generation, TTY detection, eval rules, shell-init injection, and OpenTTY pattern
+  for arielsurco-cli.
+  Trigger: When modifying shell-init, wrappers, CommandDef, TTY detection, setup auto-injection,
+  or adding commands that interact with the parent shell.
 metadata:
   author: arielsurco
-  version: "1.0"
+  version: "2.0"
 ---
 
 ## When to Use
 
-- Modifying `internal/shell/detect.go` or `generate.go`
+- Modifying `internal/shell/detect.go`, `generate.go`, or `inject.go`
 - Adding a new command that needs a shell alias
 - Changing how wrappers handle cd, eval, or completions
+- Modifying the setup command's shell-init injection
 - Debugging why a TUI has no styles or doesn't open inside `$()`
 
 ---
@@ -135,3 +137,60 @@ fmt.Fprintf(os.Stderr, "Project %q removed.\n", name)
 **Rule**: In any function that can be called from a `CdOutput` command (directly or transitively), ALL user-facing messages MUST use `fmt.Fprintf(os.Stderr, ...)`. This includes confirmation prompts, success messages, and info messages.
 
 Affected commands today: `gp` (`project go`). Any future `CdOutput` command inherits this rule.
+
+### Pattern 7: Shell-init auto-injection (setup command)
+
+The `setup` command automatically injects a source block into `~/.bashrc` or `~/.zshrc`.
+
+#### Fixed path for shell-init.sh
+
+```
+~/.config/arielsurco-cli/shell-init.sh
+```
+
+**DO NOT use XDG** (`xdg.ConfigHome`) for the shell-init file path. On macOS, XDG resolves
+to `~/Library/Application Support/` which has spaces and causes shell parsing issues.
+The fixed `~/.config/` path works identically on macOS and Linux.
+
+Note: The main config (`config.toml`, `active-modules.toml`) still uses XDG via `config.go`.
+Only the shell-init file uses the fixed path.
+
+#### The injected block uses `$HOME`, not `~`
+
+```bash
+# ✅ CORRECT — $HOME expands inside double quotes
+if [[ -f $HOME/.config/arielsurco-cli/shell-init.sh ]]; then
+  source $HOME/.config/arielsurco-cli/shell-init.sh
+
+# ❌ WRONG — ~ does NOT expand inside double quotes
+if [[ -f "~/.config/arielsurco-cli/shell-init.sh" ]]; then
+```
+
+#### Injection is idempotent
+
+`InjectShellInit` checks for the marker `arielsurco-cli/shell-init.sh` in the rc file.
+If found, it skips injection and returns `false`. Running setup multiple times is safe.
+
+#### Test isolation: always pass homeDir
+
+Tests MUST use `InjectShellInitWithHome(shell, homeDir)` with a `t.TempDir()` home directory.
+Using `InjectShellInit(shell)` in tests writes to the real `~/.zshrc`.
+
+```go
+// ✅ CORRECT — isolated
+homeDir := t.TempDir()
+shell.InjectShellInitWithHome(shell.Zsh, homeDir)
+
+// ❌ WRONG — pollutes real ~/.zshrc
+shell.InjectShellInit(shell.Zsh)
+```
+
+Similarly, `cmd.RunSetupWithResult` accepts a `homeDir` parameter for test isolation:
+
+```go
+// ✅ CORRECT
+cmd.RunSetupWithResult(modules, true, t.TempDir())
+
+// ❌ WRONG
+cmd.RunSetupWithResult(modules, true, "")
+```
