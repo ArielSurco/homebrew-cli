@@ -28,12 +28,16 @@ archives:
 checksum:
   name_template: "checksums.txt"
 
-homebrew_casks:
+brews:
   - name: arielsurco-cli
     description: "Personal developer CLI with project navigation and TUI"
     homepage: "https://github.com/ArielSurco/cli"
-    binaries:
-      - arielsurco-cli
+    license: "MIT"
+    directory: Formula
+    install: |
+      bin.install "arielsurco-cli"
+    test: |
+      system "#{bin}/arielsurco-cli", "--version"
     repository:
       owner: ArielSurco
       name: cli
