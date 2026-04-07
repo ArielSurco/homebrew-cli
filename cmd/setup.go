@@ -77,6 +77,21 @@ func applySetupResult(activeModuleNames []string, saved bool) error {
 		return fmt.Errorf("saving active modules: %w", err)
 	}
 
-	fmt.Println("Setup saved. Run 'eval \"$(arielsurco-cli shell-init)\"' to apply.")
+	detectedShell := shell.DetectShell()
+	newlyInjected, err := shell.InjectShellInit(detectedShell)
+	if err != nil {
+		fmt.Println("Setup saved. Run 'eval \"$(arielsurco-cli shell-init)\"' to apply.")
+		return nil
+	}
+
+	if newlyInjected {
+		rcName := "~/.bashrc"
+		if detectedShell == shell.Zsh {
+			rcName = "~/.zshrc"
+		}
+		fmt.Printf("Setup saved. Shell init added to your %s. Restart your shell to apply.\n", rcName)
+	} else {
+		fmt.Println("Setup saved. Restart your shell to apply.")
+	}
 	return nil
 }
