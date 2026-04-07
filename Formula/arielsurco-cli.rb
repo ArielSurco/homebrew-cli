@@ -11,7 +11,7 @@ class ArielsurcoCli < Formula
   on_macos do
     if Hardware::CPU.intel?
       url "https://github.com/ArielSurco/homebrew-cli/releases/download/v0.2.0/homebrew-cli_0.2.0_darwin_amd64.tar.gz"
-      sha256 "5cb4318aa30f15610b8afb6af6214a3b1b21fb622eb93e5898d5420d79ce2296"
+      sha256 "75b1b1b64d537268d1c5786fe1f22947e1608a55c1cf1b8fb36457827aa70af0"
 
       define_method(:install) do
         bin.install "arielsurco-cli"
@@ -19,7 +19,7 @@ class ArielsurcoCli < Formula
     end
     if Hardware::CPU.arm?
       url "https://github.com/ArielSurco/homebrew-cli/releases/download/v0.2.0/homebrew-cli_0.2.0_darwin_arm64.tar.gz"
-      sha256 "0f7240bff9e56757c15d0e37b58608d598784b1d992993e07d1c4acf4b670346"
+      sha256 "78481aadb8337a48a272e6d5204897a3c24466da6240ecea174a355d5a205593"
 
       define_method(:install) do
         bin.install "arielsurco-cli"
@@ -30,14 +30,14 @@ class ArielsurcoCli < Formula
   on_linux do
     if Hardware::CPU.intel? && Hardware::CPU.is_64_bit?
       url "https://github.com/ArielSurco/homebrew-cli/releases/download/v0.2.0/homebrew-cli_0.2.0_linux_amd64.tar.gz"
-      sha256 "b7fde7c838830b62dc0d69accdca38cfa2459622e0f29603baecae39ddd36e9f"
+      sha256 "bd8a85954c0f8efe3b9fc633403dd412ff961e2c70b532bdbbf963368cd3852d"
       define_method(:install) do
         bin.install "arielsurco-cli"
       end
     end
     if Hardware::CPU.arm? && Hardware::CPU.is_64_bit?
       url "https://github.com/ArielSurco/homebrew-cli/releases/download/v0.2.0/homebrew-cli_0.2.0_linux_arm64.tar.gz"
-      sha256 "1012223a2f87dd15ddacd76e1973ba0b7c9a974c1e80a52d5cbb219188f60258"
+      sha256 "6511eed5c769871017ccdc9d724e5d47d6b391e30e5646ccb2ed17d709e2d027"
       define_method(:install) do
         bin.install "arielsurco-cli"
       end
