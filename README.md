@@ -5,19 +5,17 @@ A personal developer CLI for fast project navigation and development workflow au
 ## Install
 
 ```bash
-brew tap ArielSurco/cli https://github.com/ArielSurco/cli
-brew install ArielSurco/cli/arielsurco-cli
+brew tap ArielSurco/cli
+brew install arielsurco-cli
 ```
 
 ## First-time setup
 
 ```bash
 arielsurco-cli setup
-# Add to ~/.zshrc or ~/.bashrc:
-eval "$(arielsurco-cli shell-init)"
 ```
 
-Restart your shell (or `source ~/.zshrc`) after adding the line above.
+The setup command will automatically add the shell integration to your `~/.zshrc` or `~/.bashrc`. Restart your shell after running setup.
 
 ## Upgrade
 

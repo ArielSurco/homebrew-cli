@@ -31,7 +31,7 @@ checksum:
 brews:
   - name: arielsurco-cli
     description: "Personal developer CLI with project navigation and TUI"
-    homepage: "https://github.com/ArielSurco/cli"
+    homepage: "https://github.com/ArielSurco/homebrew-cli"
     license: "MIT"
     directory: Formula
     install: |
@@ -40,11 +40,11 @@ brews:
       system "#{bin}/arielsurco-cli", "--version"
     repository:
       owner: ArielSurco
-      name: cli
+      name: homebrew-cli
       branch: main
       token: "{{ .Env.GITHUB_TOKEN }}"
 
 release:
   github:
     owner: ArielSurco
-    name: cli
+    name: homebrew-cli
